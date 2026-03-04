@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="FRC, Robotics Lod, STEM Education, Exodus 11480, ישיבת צביה לוד, רובוטיקה">
+    <meta name="description"
+        content="קבוצת הרובוטיקה Exodus 11480 מלוד. פיתוח מערכות אוטונומיות, קידום STEM והגשמת חזון טכנולוגי חינוכי ברשת צביה.">
+    <title>EXODUS 11480 | חממה למצוינות טכנולוגית בלוד</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Assistant:wght@200;300;400;600;800&family=Inter:wght@100;400;900&family=JetBrains+Mono:wght@400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --ex-primary: #3b82f6;
+            /* Blue */
+            --ex-secondary: #38bdf8;
+            /* Light Blue */
+            --ex-accent: #a855f7;
+            /* Light Purple */
+            --ex-bg: #082f49;
+            --spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        body {
+            font-family: 'Assistant', sans-serif;
+            background-color: var(--ex-bg);
+            color: #fafafa;
+            margin: 0;
+            overflow-x: hidden;
+            cursor: none;
+            /* הסתרת הסמן המקורי עבור מערכת החלקיקים */
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- PARTICLE CANVAS --- */
+        #canvas-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* --- ELEGANT BACKGROUND --- */
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: radial-gradient(circle at 50% 50%, #0c4a6e 0%, #082f49 100%);
+        }
+
+        .mesh-gradient {
+            position: fixed;
+            inset: -50%;
+            /* Make it larger to allow for animation overspill */
+            width: 200%;
+            height: 200%;
+            z-index: -1;
+            background-color: transparent;
+            background-image:
+                radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.25) 0%, transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.2) 0%, transparent 35%),
+                radial-gradient(circle at 20% 80%, rgba(6, 182, 212, 0.25) 0%, transparent 45%),
+                radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 30%);
+            opacity: 0.9;
+            animation: meshFloat 30s ease-in-out infinite alternate;
+        }
+
+        /* Ambient Glow Animations */
+        @keyframes meshFloat {
+            0% {
+                transform: rotate(0deg) translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: rotate(3deg) translate(-2%, 2%) scale(1.05);
+            }
+
+            66% {
+                transform: rotate(-2deg) translate(2%, -3%) scale(0.95);
+            }
+
+            100% {
+                transform: rotate(0deg) translate(-1%, 1%) scale(1.1);
+            }
+        }
+
+
+        /* --- WOW SCROLL ANIMATIONS --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1.2s var(--spring-easing), transform 1.2s var(--spring-easing);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- BENTO GRID STYLE --- */
+        .bento-card {
+            background: rgba(12, 74, 110, 0.4);
+            backdrop-filter: blur(25px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2), inset 0 2px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.5s var(--spring-easing);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bento-card:hover {
+            border-color: rgba(125, 211, 252, 0.5);
+            background: rgba(12, 74, 110, 0.8);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(56, 189, 248, 0.25), inset 0 2px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        nav {
+            backdrop-filter: blur(30px);
+            background: rgba(8, 47, 73, 0.7);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .tag {
+            font-family: 'JetBrains Mono', sans-serif;
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: var(--ex-primary);
+            text-transform: uppercase;
+            border-left: 3px solid var(--ex-secondary);
+            padding-left: 12px;
+            font-weight: bold;
+        }
+
+        /* Hero Text Styles */
+        .hero-title {
+            background: linear-gradient(135deg, #FFFFFF 0%, #38bdf8 50%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 10px 30px rgba(59, 130, 246, 0.2);
+        }
+
+        /* Noise Texture Over Everything */
+        .noise {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0.015;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+
+<body class="selection:bg-blue-500/30 overflow-x-hidden">
+
+    <div class="noise"></div>
+    <div class="bg-layer"></div>
+    <div class="mesh-gradient"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 py-4 px-8 md:px-12 flex justify-between items-center rounded-b-3xl">
+        <div class="flex items-center gap-4">
+            <img src="./exodus-logo.jpg" alt="לוגו קבוצת הרובוטיקה אקסודוס 11480 לוד"
+                class="h-10 w-10 object-cover rounded-full border-2 border-blue-500 shadow-[0_0_15px_rgba(56,189,248,0.5)]">
+            <span
+                class="font-inter font-black tracking-tighter text-3xl uppercase bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Exodus</span>
+        </div>
+        <div class="hidden lg:flex gap-12 text-[11px] font-bold uppercase tracking-[4px] text-slate-400">
+            <a href="#mission" class="hover:text-white transition">משימה_</a>
+            <a href="#lab" class="hover:text-white transition">מעבדה_</a>
+            <a href="#partners" class="hover:text-white transition">רשת_קשר</a>
+        </div>
+        <div class="flex items-center gap-8">
+            <a href="https://www.instagram.com/exodus11480frc" target="_blank"
+                class="hover:text-blue-400 hover:scale-125 hover:-rotate-6 transition duration-300">
+                <i class="fab fa-instagram text-2xl"></i>
+            </a>
+            <span class="font-mono text-[9px] text-slate-700 hidden sm:block">LOD_IL_11480</span>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen flex flex-col justify-center items-center px-6 text-center relative">
+        <div class="reveal active">
+            <div class="tag mb-10">אתחול_ארכיטקטורת_ליבה</div>
+            <h1 class="hero-title text-7xl md:text-[9rem] font-black tracking-tighter leading-[0.8] mb-12">
+                פורצים גבולות.
+            </h1>
+            <p class="max-w-3xl mx-auto text-slate-400 text-lg md:text-2xl font-light mb-16 leading-relaxed">
+                אנחנו אקסודוס #11480. הרבה יותר מקבוצת רובוטיקה – אנחנו חממה למצוינות טכנולוגית בלוד. מתוך ישיבת צביה,
+                אנחנו פורצים גבולות, מפתחים מערכות אוטונומיות מתקדמות ומוכיחים שאין תקרת זכוכית לדור העתיד.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                <button onclick="document.getElementById('mission').scrollIntoView()"
+                    class="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-black px-12 py-5 rounded-full font-black text-sm uppercase tracking-widest hover:scale-110 hover:-translate-y-2 shadow-[0_10px_30px_rgba(56,189,248,0.4)] transition-all duration-300">
+                    גלו את הטכנולוגיה
+                </button>
+                <button onclick="document.getElementById('partners').scrollIntoView()"
+                    class="border-2 border-white/20 px-12 py-5 rounded-full font-extrabold text-sm uppercase tracking-widest hover:bg-white/10 hover:border-white/40 transition-all hover:scale-105">
+                    הצטרפו כשותפים לדרך
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bento Section -->
+    <section id="mission" class="py-40 px-6 container mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+
+            <!-- Main Story Card -->
+            <div class="md:col-span-8 bento-card p-16 flex flex-col justify-between reveal">
+                <div>
+                    <div class="tag mb-12">נתוני_נרטיב</div>
+                    <h2 class="text-5xl md:text-6xl font-extrabold mb-10 italic tracking-tighter">Exodus: פריצת דרך
+                        מקומית, <br>השפעה גלובלית.</h2>
+                    <p class="text-slate-400 text-2xl leading-relaxed max-w-2xl font-light">
+                        השם Exodus לא נבחר במקרה; הוא מסמל יציאה לדרך חדשה ושאיפה מתמדת לשיפור. כקבוצה הפועלת בלוד
+                        (LOD_IL), אנו גאים לייצג את העיר ולהוות אבן דרך בקהילה. אנחנו משלבים את רוח רשת צביה עם יזמות
+                        טכנולוגית, והופכים חזון טכנולוגי למכונות מנצחות המובילות ב-FRC.
+                    </p>
+                </div>
+                <div
+                    class="mt-20 flex items-center gap-3 bg-white/5 w-fit px-6 py-3 rounded-full border border-white/10">
+                    <span
+                        class="w-3 h-3 bg-red-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]"></span>
+                    <span
+                        class="font-mono text-xs uppercase tracking-[3px] text-red-200 font-bold">חדשנות_פעילה_בזמן_אמת</span>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="md:col-span-4 bento-card p-12 reveal" style="transition-delay: 0.1s;">
+                <div class="tag mb-12">מדדים</div>
+                <div class="space-y-16">
+                    <div>
+                        <div class="text-[10px] text-blue-300/60 uppercase tracking-[4px] mb-3 font-bold">
+                            קוד עצמאי</div>
+                        <div
+                            class="text-7xl font-black font-inter bg-clip-text text-transparent bg-gradient-to-b from-white to-slate-500">
+                            100%</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-blue-300/60 uppercase tracking-[4px] mb-3 font-bold">שעות הנדסה
+                        </div>
+                        <div
+                            class="text-7xl font-black font-inter text-blue-500 italic drop-shadow-[0_0_15px_rgba(59,130,246,0.4)]">
+                            500+</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image/Logo Spotlight -->
+            <div class="md:col-span-5 bento-card flex items-center justify-center p-12 lg:p-24 reveal group"
+                style="transition-delay: 0.2s;">
+                <div
+                    class="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                </div>
+                <img src="./exodus-logo.jpg" alt="Exodus 11480 Team Identity and Local Pride"
+                    class="w-64 rounded-3xl opacity-90 group-hover:opacity-100 group-hover:scale-110 group-hover:rotate-3 transition-all duration-700 shadow-2xl">
+            </div>
+
+            <!-- Divisions -->
+            <div id="lab" class="md:col-span-7 bento-card p-16 reveal" style="transition-delay: 0.3s;">
+                <div class="tag mb-12">ליבת_הרובוט</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-12 relative z-10">
+                    <div class="group hover:-translate-y-2 transition-transform duration-300">
+                        <h4 class="text-blue-400 font-extrabold mb-4 uppercase italic tracking-tighter text-xl">
+                            מעבדה מכנית</h4>
+                        <p class="text-slate-400 text-sm leading-relaxed font-medium">תכנון CAD מתקדם ב-SolidWorks,
+                            ייצור רכיבי CNC מוקפדים, קינמטיקה חכמה לפעולה מדויקת ומנגנונים מודולאריים להחלפה מהירה.</p>
+                    </div>
+                    <div class="group hover:-translate-y-2 transition-transform duration-300">
+                        <h4 class="text-purple-400 font-extrabold mb-4 uppercase italic tracking-tighter text-xl">
+                            מערכות תוכנה</h4>
+                        <p class="text-slate-400 text-sm leading-relaxed font-medium">מערכות אוטונומיות ב-Java, שימוש
+                            בבקרת PID לדיוק תנועה, ומערכת Limelight לראייה ממוחשבת וזיהוי אובייקטים בזמן אמת.</p>
+                    </div>
+                    <div class="group hover:-translate-y-2 transition-transform duration-300">
+                        <h4 class="text-cyan-400 font-extrabold mb-4 uppercase italic tracking-tighter text-xl">אסטרטגיה
+                            ותפעול</h4>
+                        <p class="text-slate-400 text-sm leading-relaxed font-medium">פיתוח מנגנוני איסוף דאטה
+                            (Scouting), קבלת החלטות מבוססת נתונים וניתוח משחקים אנליטי בזירת ה-FRC במטרה להטמיע יתרון
+                            תחרותי.</p>
+                    </div>
+                    <div class="group hover:-translate-y-2 transition-transform duration-300">
+                        <h4 class="text-red-400 font-extrabold mb-4 uppercase italic tracking-tighter text-xl">השפעה
+                            קהילתית</h4>
+                        <p class="text-slate-400 text-sm leading-relaxed font-medium">מעצימים חינוך טכנולוגי בעיר לוד
+                            (STEM), רותמים חסויות וזוכים לתמיכה של העירייה ורשת צביה ליצירת מנהיגות משמעותית.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Instagram Gallery -->
+    <section id="gallery"
+        class="py-24 px-6 container mx-auto mt-20 mb-10 bg-slate-900/40 rounded-[3rem] border border-white/5 shadow-[inset_0_0_50px_rgba(0,0,0,0.3)] relative overflow-hidden">
+        <div
+            class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 mix-blend-overlay pointer-events-none">
+        </div>
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-end mb-16 reveal">
+            <div>
+                <div class="tag mb-6">עדכונים_חברתיים</div>
+                <h2 class="text-5xl font-black italic tracking-tighter">השידורים <br> האחרונים.</h2>
+            </div>
+            <a href="https://www.instagram.com/exodus11480frc" target="_blank"
+                class="mt-6 md:mt-0 flex items-center gap-3 text-sm font-bold uppercase tracking-widest hover:text-blue-400 transition-colors group">
+                עקבו אחרינו
+                <i
+                    class="fas fa-arrow-right -rotate-45 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></i>
+            </a>
+        </div>
+
+        <div class="relative z-10 reveal" style="transition-delay: 0.2s;">
+            <!-- Elfsight Instagram Feed | Untitled Instagram Feed -->
+            <script src="https://elfsightcdn.com/platform.js" async></script>
+            <div class="elfsight-app-fea1c6b2-1ae4-4bfc-a6e8-31d4a0918b1a" data-elfsight-app-lazy></div>
+        </div>
+    </section>
+
+    <!-- Partners -->
+    <section id="partners" class="py-40 bg-black/30 border-y border-white/5 shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]">
+        <div class="container mx-auto px-6 text-center">
+            <div class="reveal mb-24">
+                <div class="tag mb-8 inline-block">ברית_אסטרטגית</div>
+                <h2 class="text-6xl font-black italic tracking-tighter">שותפים.</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-16 items-start reveal">
+                <div class="flex flex-col gap-6 items-center text-center">
+                    <div class="h-36 flex items-center justify-center">
+                        <img src="./לוגו באז.png" alt="Esc BAZ"
+                            class="max-h-full max-w-[300px] object-contain opacity-80 hover:opacity-100 hover:scale-110 transition duration-300 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                    </div>
+                    <p class="text-slate-400 text-sm px-4">בזכות התמיכה הטכנולוגית של Esc BAZ, מוענק לנו חופש פעולה
+                        לייצור רכיבים תעשייתיים ומדויקים בהתמדה לאורך כל עונת הפיתוח.</p>
+                </div>
+                <div class="flex flex-col gap-6 items-center text-center">
+                    <div class="h-36 flex items-center justify-center">
+                        <img src="./לוגו רוטשטיין.png" alt="ROTHSTEIN"
+                            class="max-h-full max-w-[300px] object-contain opacity-80 hover:opacity-100 hover:scale-110 transition duration-300 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
+                    </div>
+                    <p class="text-slate-400 text-sm px-4">שותפות לפיתוח אופקים – תודות לתמיכת חברת רוטשטיין אנו מסוגלים
+                        להרחיב באלגנטיות את פעילות ה-STEM המעשית לדור הצעיר שלנו בלוד.</p>
+                </div>
+                <div class="flex flex-col gap-6 items-center text-center">
+                    <div class="h-36 flex items-center justify-center">
+                        <img src="./לוגו אופיר אנליטיקל.png" alt="OPHIR"
+                            class="max-h-full max-w-[300px] object-contain opacity-80 hover:opacity-100 hover:scale-110 transition duration-300 drop-shadow-[0_0_15px_rgba(56,189,248,0.5)]">
+                    </div>
+                    <p class="text-slate-400 text-sm px-4">התמיכה של חברת אופיר מאפשר לצוות
+                        שלנו לכוונן ולפתח מערכות חסרות פשרות ותקשורת רציפה במגרש.</p>
+                </div>
+            </div>
+
+            <div class="mt-40 flex flex-wrap justify-center items-center gap-16 sm:gap-24 reveal">
+                <img src="./לוגו עיריית לוד[.png" alt="Lod Municipality"
+                    class="h-24 object-contain opacity-70 hover:opacity-100 hover:scale-110 transition duration-300">
+                <img src="./לוגו רשת צביה.png" alt="Tzvia Network"
+                    class="h-24 object-contain opacity-70 hover:opacity-100 hover:scale-110 transition duration-300">
+                <img src="./לוגו ישיבה.png" alt="Yeshivat Tzvia Lod"
+                    class="h-24 object-contain opacity-70 hover:opacity-100 hover:scale-110 transition duration-300">
+                <img src="./לוגו פירסט.png" alt="FIRST Israel"
+                    class="h-24 object-contain opacity-70 hover:opacity-100 hover:scale-110 transition duration-300">
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA Banner -->
+    <section class="py-32 px-6 container mx-auto text-center reveal">
+        <div
+            class="bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-cyan-600/20 border border-white/10 rounded-[3rem] p-16 md:p-24 relative overflow-hidden group shadow-2xl">
+            <div
+                class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E')] opacity-20 mix-blend-overlay">
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+
+            <div class="relative z-10">
+                <h2 class="text-5xl md:text-7xl font-black italic tracking-tighter mb-8 text-white">מוכנים לבנות
+                    <br><span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">את
+                        העתיד?</span>
+                </h2>
+                <p class="text-slate-300 text-xl md:text-2xl font-light max-w-3xl mx-auto mb-12">הצטרפו למשפחת אקסודוס,
+                    תמכו בעשייה הטכנולוגית ועזרו לנו להמשיך להוביל את חזון המצוינות והמנהיגות בעיר לוד גם בעונה הבאה.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                    <button
+                        class="bg-white text-black px-12 py-5 rounded-full font-black text-sm uppercase tracking-widest hover:scale-110 hover:-translate-y-2 shadow-[0_10px_40px_rgba(255,255,255,0.3)] transition-all duration-300">
+                        הצטרפו למסע
+                    </button>
+                    <button
+                        class="border-2 border-white/20 px-12 py-5 rounded-full font-extrabold text-sm uppercase tracking-widest text-white hover:bg-white/10 hover:border-white/40 transition-all hover:scale-105">
+                        צרו קשר
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-32 px-12 border-t border-white/5">
+        <div
+            class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-16 text-center md:text-right">
+            <div>
+                <div class="font-inter font-black text-3xl tracking-tighter mb-4">EXODUS 11480</div>
+                <p class="text-slate-600 text-[10px] uppercase tracking-[5px] leading-relaxed">
+                    מתוכנן לביצועים גבוהים <br> לוד // ישראל
+                </p>
+            </div>
+
+            <a href="https://www.instagram.com/exodus11480frc" target="_blank"
+                class="w-20 h-20 rounded-full border-2 border-blue-500/30 flex items-center justify-center hover:bg-blue-500 hover:text-white hover:scale-110 hover:-rotate-12 hover:shadow-[0_0_20px_rgba(59,130,246,0.6)] transition-all duration-300">
+                <i class="fab fa-instagram text-3xl"></i>
+            </a>
+
+            <div class="text-[9px] text-slate-800 uppercase font-black tracking-[10px]">
+                © 2024 אקסודוס רובוטיקה. ללא גבולות.
+            </div>
+        </div>
+    </footer>
+
+    <canvas id="canvas-cursor"></canvas>
+
+    <script>
+        // --- PARTICLE CURSOR SYSTEM ---
+        const canvas = document.getElementById('canvas-cursor');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let mouse = { x: 0, y: 0, lastX: 0, lastY: 0, speed: 0 };
+        const particles = [];
+        const PARTICLE_COUNT = 40;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+
+            const dx = mouse.x - mouse.lastX;
+            const dy = mouse.y - mouse.lastY;
+            mouse.speed = Math.sqrt(dx * dx + dy * dy);
+
+            mouse.lastX = mouse.x;
+            mouse.lastY = mouse.y;
+        });
+
+        class Particle {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.x = mouse.x;
+                this.y = mouse.y;
+                this.size = Math.random() * 3 + 0.5; // Smaller, more subtle particles
+
+                // Random starting offset - spread out wide
+                this.offsetX = (Math.random() - 0.5) * 400;
+                this.offsetY = (Math.random() - 0.5) * 600;
+
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+
+                // Colors matching the new theme: Blue, Light Blue, Purple, White, Red but with opacity
+                const colors = [
+                    'rgba(59, 130, 246, 0.5)',   /* Blue */
+                    'rgba(56, 189, 248, 0.6)',   /* Light Blue */
+                    'rgba(168, 85, 247, 0.4)',   /* Purple */
+                    'rgba(255, 255, 255, 0.3)',  /* White */
+                ];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            update() {
+                // Periodically shift the random offset to create organic wandering
+                if (Math.random() < 0.05) {
+                    const spread = 400 + mouse.speed * 20;
+                    this.offsetX += (Math.random() - 0.5) * spread;
+                    this.offsetY += (Math.random() - 0.5) * spread;
+
+                    // Constrain the wander area
+                    const maxSpread = 200;
+                    this.offsetX = Math.max(-maxSpread, Math.min(maxSpread, this.offsetX));
+                    this.offsetY = Math.max(-maxSpread, Math.min(maxSpread, this.offsetY));
+                }
+
+                // Target is simply the mouse plus the random offset
+                const targetX = mouse.x + this.offsetX;
+                const targetY = mouse.y + this.offsetY;
+
+                // Move towards target
+                this.vx += (targetX - this.x) * 0.005;
+                this.vy += (targetY - this.y) * 0.005;
+
+                // Add random jitter to velocity
+                this.vx += (Math.random() - 0.5) * 0.5;
+                this.vy += (Math.random() - 0.5) * 0.5;
+
+                // Friction
+                this.vx *= 0.92;
+                this.vy *= 0.92;
+
+                this.x += this.vx;
+                this.y += this.vy;
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Faint, subtle glow instead of a bright one
+                ctx.shadowBlur = 4;
+                ctx.shadowColor = this.color;
+            }
+        }
+
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            particles.push(new Particle());
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, width, height);
+
+            // Draw a tiny central core dot
+            ctx.fillStyle = "#fff";
+            ctx.beginPath();
+            ctx.arc(mouse.x, mouse.y, 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            // Smoothly decay mouse speed for the "slow disperse" effect
+            mouse.speed *= 0.95;
+
+            requestAnimationFrame(render);
+        }
+
+        render();
+
+        // --- WOW SCROLL REVEAL ---
+        const observerOptions = { threshold: 0.15 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+
+</html>
