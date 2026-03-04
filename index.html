@@ -92,6 +92,18 @@
             }
         }
 
+        
+        /* Disable custom cursor on touch devices */
+        @media (hover: none) and (pointer: coarse) {
+            body {
+                cursor: auto;
+            }
+
+            #canvas-cursor {
+                display: none;
+            }
+        }
+
 
         /* --- WOW SCROLL ANIMATIONS --- */
         .reveal {
@@ -582,4 +594,5 @@
 
 
 </html>
+
 
