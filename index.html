@@ -34,7 +34,6 @@
             overflow-x: hidden;
             cursor: none;
             /* הסתרת הסמן המקורי עבור מערכת החלקיקים */
-            /*-webkit-font-smoothing: antialiased;*/
         }
 
         /* --- PARTICLE CANVAS --- */
@@ -46,6 +45,17 @@
             height: 100%;
             pointer-events: none;
             z-index: 9999;
+        }
+
+        /* Disable custom cursor on touch devices */
+        @media (hover: none) and (pointer: coarse) {
+            body {
+                cursor: auto;
+            }
+
+            #canvas-cursor {
+                display: none;
+            }
         }
 
         /* --- ELEGANT BACKGROUND --- */
@@ -89,18 +99,6 @@
 
             100% {
                 transform: rotate(0deg) translate(-1%, 1%) scale(1.1);
-            }
-        }
-
-        
-        /* Disable custom cursor on touch devices */
-        @media (hover: none) and (pointer: coarse) {
-            body {
-                cursor: auto;
-            }
-
-            #canvas-cursor {
-                display: none;
             }
         }
 
@@ -283,6 +281,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- Image/Logo Spotlight -->
             <div class="md:col-span-5 bento-card flex items-center justify-center p-12 lg:p-24 reveal group"
                 style="transition-delay: 0.2s;">
@@ -596,10 +595,4 @@
     </script>
 </body>
 
-
 </html>
-
-
-
-
-
